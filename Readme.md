@@ -1,350 +1,544 @@
 # 🎬 AI Video Intelligence Assistant
 
-> Transform long-form video and local media into structured, searchable knowledge using speech-to-text, LLM-powered analysis, and Retrieval-Augmented Generation (RAG).
+> An end-to-end AI application that converts long-form videos and local media into structured, searchable knowledge using speech-to-text, Large Language Models, and Retrieval-Augmented Generation (RAG).
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.64%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![LangChain](https://img.shields.io/badge/LangChain-1.x-1C3C3C)](https://www.langchain.com/)
-[![ChromaDB](https://img.shields.io/badge/Vector%20DB-ChromaDB-FF6F00)](https://www.trychroma.com/)
-[![Whisper](https://img.shields.io/badge/Speech--to--Text-Whisper-412991)](https://github.com/openai/whisper)
+## 🚀 Overview
 
----
+The **AI Video Intelligence Assistant** transforms long videos into useful, structured information.
 
-## 📌 Overview
+Users can provide a **YouTube URL or local media file**, and the system automatically:
 
-**AI Video Intelligence Assistant** is an end-to-end AI application that converts video or audio content into actionable, searchable information.
+- Extracts and processes audio
+- Converts speech into text using **OpenAI Whisper**
+- Generates a professional title
+- Produces an AI-generated summary
+- Extracts action items
+- Identifies key decisions
+- Detects unresolved questions
+- Builds a searchable vector database
+- Enables natural-language Q&A over the transcript using **RAG**
 
-The system accepts either a **YouTube URL** or a **local media file**, extracts and processes the audio, transcribes the content with **OpenAI Whisper**, and uses an LLM to generate a professional title, summary, action items, key decisions, and unresolved questions.
-
-The generated transcript is then indexed in **ChromaDB** with local **Hugging Face embeddings**, enabling users to ask natural-language questions about the analyzed video through a **RAG-powered chat interface**.
-
-### Core workflow
-
-```text
-YouTube URL / Local Media
-          │
-          ▼
-    Audio Extraction
-          │
-          ▼
-   WAV Conversion + Chunking
-          │
-          ▼
-    Whisper Transcription
-          │
-          ▼
-      LLM Analysis
-     ┌────┼───────────┐
-     ▼    ▼           ▼
-   Title Summary   Structured Insights
-                     ├── Action Items
-                     ├── Key Decisions
-                     └── Open Questions
-          │
-          ▼
-   Transcript Chunking
-          │
-          ▼
-   Hugging Face Embeddings
-          │
-          ▼
-       ChromaDB
-          │
-          ▼
-     Similarity Retrieval
-          │
-          ▼
-      LLM-powered Q&A
-```
+The application provides an interactive **Streamlit dashboard** for video analysis and transcript-based question answering.
 
 ---
 
 ## ✨ Key Features
 
-### 🎥 Flexible Video Input
-- Accepts **YouTube URLs**
-- Accepts **local video/audio file paths**
-- Automatically detects the input type
+### 🎥 Video & Audio Processing
 
-### 🎙️ Local Speech-to-Text
-- Uses **OpenAI Whisper** for transcription
-- Processes long recordings in manageable audio chunks
+- Supports YouTube URLs
+- Supports local video/audio files
+- Automatically detects the input source
+- Downloads YouTube audio using `yt-dlp`
+- Converts media to mono 16 kHz WAV
+- Splits long recordings into 10-minute audio chunks
+
+### 🎙️ Speech-to-Text
+
+- Uses **OpenAI Whisper** for local transcription
+- Supports configurable Whisper models
+- Processes audio chunk-by-chunk
 - Supports English transcription
-- Includes a Hinglish input option using Whisper translation mode
+- Includes a Hinglish option using Whisper translation mode
 
-### 🧠 AI-Powered Meeting Intelligence
-Automatically generates:
-- **Professional title**
-- **Concise summary**
-- **Action items**
-- **Responsible owners and deadlines** when available
-- **Key decisions**
-- **Open questions / follow-up topics**
+### 🧠 AI-Powered Video Analysis
 
-### 🔎 RAG-Powered Video Q&A
-- Splits transcripts into semantic chunks
-- Generates embeddings locally with **all-MiniLM-L6-v2**
-- Stores vectors in **ChromaDB**
-- Retrieves the most relevant transcript context
-- Answers questions using only the retrieved transcript context
+The system automatically generates:
 
-### 💬 Interactive Streamlit Interface
-- Dark, responsive UI
-- Pipeline status indicators
-- Full transcript viewer
-- Structured result cards
-- Conversational Q&A interface
-- Chat history with clear-chat support
+- 📌 Professional title
+- 📋 Video/meeting summary
+- ✅ Action items
+- 🔑 Key decisions
+- ❓ Open questions
+
+For action items, the system attempts to identify:
+
+- Task description
+- Responsible owner
+- Deadline, when mentioned
 
 ---
 
-## 🏗️ Architecture
+## 🔎 Retrieval-Augmented Generation
 
-The project is organized as a modular pipeline rather than a single monolithic script.
+The transcript is transformed into a searchable knowledge base using:
+
+- **RecursiveCharacterTextSplitter**
+- **Hugging Face `all-MiniLM-L6-v2` embeddings**
+- **ChromaDB**
+- **Similarity retrieval**
+- **Groq LLM**
+
+The system retrieves the most relevant transcript sections and uses them as context for question answering.
+
+### RAG Pipeline
 
 ```text
-AI-video-intelligence-assistant/
-│
-├── app.py                    # Streamlit application and UI
-├── main.py                   # CLI pipeline entry point
-├── test.py                   # Basic transcription test
-├── requirements.txt          # Python dependencies
-├── .gitignore
-│
-├── core/
-│   ├── extractor.py          # Action items, decisions, questions
-│   ├── rag_engine.py         # RAG chain and Q&A
-│   ├── summarizer.py         # Title generation and summarization
-│   ├── transcriber.py        # Whisper transcription
-│   └── vector_store.py       # ChromaDB + embeddings
-│
-├── utils/
-│   └── audio_processor.py    # Download, conversion and chunking
-│
-└── vector_db/                # ChromaDB persistence directory
+Transcript
+    │
+    ▼
+Text Chunking
+    │
+    ▼
+Hugging Face Embeddings
+    │
+    ▼
+ChromaDB Vector Store
+    │
+    ▼
+Similarity Search
+    │
+    ▼
+Relevant Transcript Context
+    │
+    ▼
+Groq LLM
+    │
+    ▼
+Answer
 ```
 
 ---
 
-## 🔧 Tech Stack
+## 🏗️ System Architecture
 
-| Layer | Technology |
+```text
+                    ┌─────────────────────────┐
+                    │ YouTube URL / Local File │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │    Audio Processing    │
+                    │     yt-dlp / pydub     │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │     Audio Chunking     │
+                    │       10 min chunks    │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │     Whisper STT        │
+                    │      Speech → Text     │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                  ┌─────────────────────────────┐
+                  │      Transcript Analysis   │
+                  ├─────────────┬───────────────┤
+                  │             │               │
+                  ▼             ▼               ▼
+               Title         Summary      Information
+                                           Extraction
+                                            │
+                                  ┌─────────┼──────────┐
+                                  ▼         ▼          ▼
+                              Action Items Decisions Open Questions
+
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │    Transcript Chunks   │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │ Hugging Face Embeddings │
+                    │   all-MiniLM-L6-v2      │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │       ChromaDB          │
+                    │     Vector Database     │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │    Similarity Search   │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │       Groq LLM         │
+                    │    Context + Query     │
+                    └────────────┬───────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │       Video Q&A         │
+                    └────────────────────────┘
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
 |---|---|
-| Language | Python 3.10+ |
-| UI | Streamlit |
-| Video / Audio Ingestion | yt-dlp, pydub, FFmpeg |
+| Programming Language | Python 3.10+ |
+| User Interface | Streamlit |
+| Video / Audio Download | yt-dlp |
+| Audio Processing | pydub |
+| Multimedia Processing | FFmpeg |
 | Speech-to-Text | OpenAI Whisper |
-| LLM Orchestration | LangChain |
+| LLM Framework | LangChain |
 | LLM Provider | Groq |
 | LLM Model | `openai/gpt-oss-20b` |
 | Text Splitting | RecursiveCharacterTextSplitter |
 | Embeddings | Hugging Face `all-MiniLM-L6-v2` |
 | Vector Database | ChromaDB |
+| Deep Learning | PyTorch, TorchAudio |
 | Environment Management | python-dotenv |
-| Deep Learning Runtime | PyTorch / TorchAudio |
 
 ---
 
-## ⚙️ How It Works
+## 📂 Project Structure
+
+```text
+AI-video-intelligence-assistant/
+│
+├── app.py
+├── main.py
+├── test.py
+├── requirements.txt
+├── .gitignore
+│
+├── core/
+│   ├── __init__.py
+│   ├── extractor.py
+│   ├── rag_engine.py
+│   ├── summarizer.py
+│   ├── transcriber.py
+│   └── vector_store.py
+│
+├── utils/
+│   ├── __init__.py
+│   └── audio_processor.py
+│
+├── .streamlit/
+│   └── config.toml
+│
+└── vector_db/
+    └── ChromaDB persistent data
+```
+
+---
+
+## 🔄 Application Workflow
 
 ### 1. Input Processing
 
-When a user submits a source:
+The application accepts:
 
-- A YouTube URL is downloaded using **yt-dlp**
-- A local media file is converted to WAV using **pydub**
-- Audio is normalized to **mono, 16 kHz WAV**
-- The audio is split into **10-minute chunks**
+```text
+YouTube URL
+      OR
+Local Media File
+```
 
-This prevents long recordings from becoming a single oversized transcription job.
+For YouTube URLs, `yt-dlp` downloads the best available audio.
 
-### 2. Transcription
+For local media files, `pydub` converts the input into WAV format.
 
-Each audio chunk is transcribed using **OpenAI Whisper**.
+The audio is normalized to:
 
-The Whisper model is loaded lazily and can be selected through the `WHISPER_MODEL` environment variable. The default configured model is:
+```text
+Mono
+16 kHz
+WAV
+```
+
+### 2. Audio Chunking
+
+Long recordings are divided into **10-minute chunks**.
+
+This allows the transcription pipeline to process long-form recordings incrementally rather than handling the complete recording as one large input.
+
+### 3. Whisper Transcription
+
+Each audio chunk is processed using **OpenAI Whisper**.
+
+The default configured model is:
 
 ```text
 small
 ```
 
-### 3. Intelligent Summarization
+The model can be changed using:
 
-The transcript is split into smaller sections and processed using a map-and-combine summarization flow.
+```env
+WHISPER_MODEL=small
+```
 
-The system produces:
-- A short professional title
-- A consolidated meeting summary
+### 4. AI Title Generation
 
-### 4. Information Extraction
+The transcript is passed to the Groq-hosted LLM to generate a concise professional title.
 
-The transcript is analyzed for structured meeting information:
+Configured model:
+
+```text
+openai/gpt-oss-20b
+```
+
+### 5. Transcript Summarization
+
+The transcript is split into smaller sections.
+
+Each section is summarized independently, after which the partial summaries are combined into a final professional summary.
+
+```text
+Transcript
+    │
+    ├── Chunk 1 → Summary 1
+    ├── Chunk 2 → Summary 2
+    ├── Chunk 3 → Summary 3
+    └── ...
+           │
+           ▼
+     Final Summary
+```
+
+### 6. Information Extraction
+
+The system separately extracts:
 
 ```text
 Action Items
-├── Task
-├── Owner
-└── Deadline
-
 Key Decisions
-└── Important decisions made during the discussion
-
 Open Questions
-└── Unresolved issues requiring follow-up
 ```
 
-### 5. Vectorization
+Action items attempt to capture:
 
-For semantic retrieval, the transcript is divided into smaller chunks.
+```text
+Task
+Owner
+Deadline
+```
 
-Each chunk is embedded with:
+when such information is available in the transcript.
+
+### 7. Vector Store Creation
+
+The transcript is split using:
+
+```text
+Chunk Size: 500
+Chunk Overlap: 50
+```
+
+Each chunk is converted into an embedding using:
 
 ```text
 all-MiniLM-L6-v2
 ```
 
-The resulting embeddings are stored in **ChromaDB** with chunk metadata.
+The embeddings are stored in **ChromaDB** for semantic retrieval.
 
-### 6. Retrieval-Augmented Generation
+### 8. RAG-Based Question Answering
 
-For every user question:
+When a user asks a question:
 
-1. The question is embedded.
-2. Similar transcript chunks are retrieved.
-3. The top **4** relevant chunks are passed as context.
-4. The Groq-hosted LLM generates the answer.
-5. The prompt explicitly constrains the assistant to answer from the transcript context.
+```text
+User Question
+      │
+      ▼
+Similarity Search
+      │
+      ▼
+Top 4 Relevant Transcript Chunks
+      │
+      ▼
+Context + Question
+      │
+      ▼
+Groq LLM
+      │
+      ▼
+Final Answer
+```
 
-When relevant information is not present, the system is instructed to state that it could not find the information in the transcript.
+The retriever is configured to return the top **4 relevant chunks**.
+
+The RAG prompt instructs the assistant to answer using the provided transcript context and return a fallback response when the requested information cannot be found.
 
 ---
 
-## 🚀 Getting Started
+## 💬 Example Use Cases
+
+The application can be used for:
+
+- Meeting analysis
+- Lecture summarization
+- Technical video understanding
+- Interview analysis
+- Webinar processing
+- Educational content analysis
+- Research discussions
+- Knowledge extraction from long-form videos
+- Searching through recorded meetings
+
+### Example Questions
+
+```text
+What were the main decisions?
+
+What tasks were assigned?
+
+Who was responsible for the implementation?
+
+What unresolved issues were discussed?
+
+What was the main conclusion?
+
+What did the speaker say about the deployment process?
+```
+
+---
+
+## 🖥️ User Interface
+
+### Sidebar
+
+The sidebar provides:
+
+- YouTube URL / local file input
+- Language selection
+- Analyse Video button
+- Pipeline status indicators
+
+### Results Dashboard
+
+After processing, the application displays:
+
+- Generated title
+- AI summary
+- Full transcript
+- Action items
+- Key decisions
+- Open questions
+
+### Interactive Q&A
+
+Users can ask follow-up questions about the analyzed video through the built-in chat interface.
+
+---
+
+## ⚙️ Installation
 
 ### Prerequisites
 
-Install the following before running the project:
+Make sure the following are installed:
 
-- Python **3.10+**
-- **FFmpeg**
+- Python 3.10+
+- FFmpeg
 - Git
-- A Groq API key
+- Groq API key
 
-> **Note:** Whisper and PyTorch can require substantial CPU/RAM resources. Processing time depends on the recording length and available hardware.
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Harshitraj123/AI-video-intelligence-assistant.git
 cd AI-video-intelligence-assistant
 ```
 
-### 2. Create a virtual environment
+### 2. Create Virtual Environment
 
-**Windows**
+#### Windows
 
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-**Linux / macOS**
+#### Linux / macOS
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
+---
+
+## 🔐 Environment Variables
 
 Create a `.env` file in the project root:
 
 ```env
-GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=your_groq_api_key
 WHISPER_MODEL=small
 ```
 
-Do not commit your API key to GitHub.
+> ⚠️ Never commit API keys or other secrets to GitHub.
 
-### 5. Start the Streamlit application
+---
+
+## ▶️ Run the Application
+
+Start the Streamlit application:
 
 ```bash
 streamlit run app.py
 ```
 
-Then open the local Streamlit URL shown in your terminal.
+The application will open in your browser.
 
 ---
 
-## 🖥️ Usage
+## 🧪 CLI Mode
 
-### From the Streamlit UI
+The project also includes a command-line implementation.
 
-1. Enter a **YouTube URL** or **local file path** in the sidebar.
-2. Select the language option.
-3. Click **Analyse Video**.
-4. Wait for the processing pipeline to complete.
-5. Review the generated:
-   - Title
-   - Summary
-   - Transcript
-   - Action Items
-   - Key Decisions
-   - Open Questions
-6. Ask follow-up questions in **Chat with your Video**.
-
-### CLI mode
-
-The project also includes a command-line pipeline through `main.py`:
+Run:
 
 ```bash
 python main.py
 ```
 
-You will be prompted for:
-- YouTube URL or local file path
-- Language
-
----
-
-## 📊 Example Output
-
-After analysis, the application presents:
+The CLI asks for:
 
 ```text
-📌 Session Title
-Professional meeting title
+YouTube URL or local file path
+Language
+```
 
-📋 Summary
-• Main discussion point
-• Important conclusions
-• Key outcomes
+It then executes:
 
-✅ Action Items
-1. Task — Owner — Deadline
-
-🔑 Key Decisions
-1. Decision made during the discussion
-
-❓ Open Questions
-1. Follow-up topic requiring clarification
-
-💬 Chat with your Video
-User: What were the main decisions?
-Assistant: ...
+```text
+Audio Processing
+      ↓
+Transcription
+      ↓
+Title Generation
+      ↓
+Summarization
+      ↓
+Information Extraction
+      ↓
+RAG Creation
+      ↓
+Interactive Q&A
 ```
 
 ---
 
 ## 🧪 Testing
 
-A small transcription test is provided in `test.py`.
+A basic transcription test is available in:
+
+```text
+test.py
+```
 
 Run:
 
@@ -352,40 +546,50 @@ Run:
 python test.py
 ```
 
-The test downloads audio from the configured YouTube example, processes the audio chunks, and prints the beginning of the generated transcript.
+This tests the audio-processing and Whisper transcription pipeline.
 
 ---
 
-## 🔐 Environment & Security
+## 📈 Technical Highlights
 
-The project expects API credentials to be supplied through environment variables.
+This project demonstrates practical implementation of:
 
-Recommended practice:
+- Speech-to-text pipelines
+- Large Language Model integration
+- Prompt engineering
+- Retrieval-Augmented Generation
+- Semantic search
+- Vector databases
+- Text chunking
+- Embeddings
+- Information extraction
+- Modular Python architecture
+- Streamlit application development
+- API integration
+- Local model inference
+
+---
+
+## 🧩 Design Approach
+
+The project follows a modular architecture where each major responsibility is separated into its own component.
 
 ```text
-.env
-   │
-   ├── GROQ_API_KEY
-   └── WHISPER_MODEL
+utils/
+    └── Audio Processing
+
+core/
+    ├── Transcription
+    ├── Summarization
+    ├── Information Extraction
+    ├── Vector Storage
+    └── RAG Engine
+
+app.py
+    └── Streamlit User Interface
 ```
 
-The API key should never be hard-coded in source code or committed to version control.
-
----
-
-## 📁 Project Design Principles
-
-The codebase separates major responsibilities into independent modules:
-
-- **Input processing** handles acquisition and audio preparation.
-- **Transcription** handles speech-to-text.
-- **Summarization** handles title and summary generation.
-- **Extraction** handles structured meeting intelligence.
-- **Vector storage** handles embedding and persistence.
-- **RAG engine** handles retrieval and question answering.
-- **Streamlit UI** handles user interaction and presentation.
-
-This separation makes the project easier to test, maintain, and extend.
+This separation improves maintainability, testing, and future extensibility.
 
 ---
 
@@ -393,54 +597,53 @@ This separation makes the project easier to test, maintain, and extend.
 
 Potential extensions include:
 
-- Timestamp-aware answers and citations
+- Timestamp-based transcript citations
 - Speaker diarization
 - Automatic topic segmentation
 - Multi-video knowledge bases
-- Conversation memory across sessions
-- Better retrieval with hybrid search
-- Background processing for long recordings
+- Persistent conversation memory
+- Hybrid keyword + semantic retrieval
+- Improved retrieval ranking
 - GPU acceleration for Whisper
-- Authentication and user-specific workspaces
-- Export of summaries and insights to PDF/Markdown
-- Deployment with Docker and cloud infrastructure
+- Background processing for long videos
+- PDF / Markdown export
+- User authentication
+- Cloud deployment
+- Docker-based deployment
+- RAG evaluation and observability
 
 ---
 
-## 🧑‍💻 Author
+## 🎯 Resume Project Description
+
+**AI Video Intelligence Assistant**  
+*Python, Whisper, LangChain, Groq, ChromaDB, Hugging Face, Streamlit*
+
+- Built an end-to-end AI system that processes YouTube and local media, performs Whisper-based speech-to-text transcription, and generates structured summaries, action items, key decisions, and open questions.
+- Implemented a **Retrieval-Augmented Generation (RAG)** pipeline using Hugging Face embeddings and ChromaDB for semantic transcript retrieval and context-aware video Q&A.
+- Developed a modular Streamlit interface with pipeline status tracking, transcript visualization, structured insights, and interactive question answering.
+
+---
+
+## 👨‍💻 Author
 
 **Harshit Raj**
 
 Computer Science & Engineering Student  
-BMS Institute of Technology and Management
+BMS Institute of Technology and Management, Bengaluru
 
-GitHub: https://github.com/Harshitraj123  
+GitHub: https://github.com/Harshitraj123
+
 LinkedIn: https://linkedin.com/in/harshitraj010204
 
 ---
 
-## ⭐ Project Highlights
+## ⭐ Repository
 
-This project demonstrates practical experience with:
-
-- End-to-end **AI application development**
-- **Speech-to-text** pipelines
-- **LLM application development**
-- **Retrieval-Augmented Generation**
-- **Vector databases**
-- **Semantic search**
-- **Modular Python architecture**
-- **Streamlit application development**
-- Integration of local models with hosted LLM APIs
-
----
-
-## 📜 License
-
-Add an appropriate open-source license before publicly distributing the project.
+https://github.com/Harshitraj123/AI-video-intelligence-assistant
 
 ---
 
 <p align="center">
-  Built with Python, Whisper, LangChain, ChromaDB, Groq and Streamlit.
+  Built with Python, Whisper, LangChain, Groq, ChromaDB, Hugging Face and Streamlit.
 </p>
